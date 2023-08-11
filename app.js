@@ -8,6 +8,9 @@ const exphbs = require('express-handlebars');
 // 載入 Todo model
 const Todo = require('./models/todo')
 
+// 引用 body-parser
+const bodyParser = require('body-parser')
+
 // 載入 mongoose
 const mongoose = require('mongoose')
 // 加入這段 code, 僅在非正式環境時, 使用 dotenv: dotenv 是一個方便我們管理環境變數的工具，他可以讓我們把環境變數直接寫在專案裡，以專案為單位去管理。引入 dotenv，讓 Node.js 能抓到寫在 .env 上的環境變數
@@ -19,6 +22,9 @@ if (process.env.NODE_ENV !== 'production') {
 //環境變數定義在".env"
 //第二個參數: 處理 terminal上的 DeprecationWarning 警告
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+
+// 用 app.use 規定每一筆請求都需要透過 body-parser 進行前置處理
+app.use(bodyParser.urlencoded({ extended: true }))
 
 
 //建立樣板引擎hbs
@@ -47,6 +53,19 @@ app.get('/', (req, res) => {
     .lean() // 把 Mongoose 的 Model 物件轉換成乾淨的 JavaScript 資料陣列
     .then(todos => res.render('index', { todos })) // 將資料傳給 index 樣板
     .catch(error => console.error(error)) // 錯誤處理
+})
+
+// 設定New頁面路由
+app.get('/todos/new', (req, res) => {
+  return res.render('new')
+})
+
+//Create 功能：資料庫新增資料
+app.post('/todos', (req, res) => {
+  const name = req.body.name       // 從 req.body 拿出表單裡的 name 資料
+  return Todo.create({ name })     // 存入資料庫
+    .then(() => res.redirect('/')) // 新增完成後導回首頁
+    .catch(error => console.log(error))
 })
 
 // 設定 port 3000
