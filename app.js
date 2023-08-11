@@ -43,28 +43,37 @@ db.once('open', () => {
   console.log('mongodb connected!')
 })
 
-// 設定首頁路由
+// 設定首頁路由: 瀏覽所有To-do
 app.get('/', (req, res) => {
   //res.send('hello world')
   //res.render('index')
 
   //把 Todo model 的資料傳到樣板裡
-  Todo.find() // 取出 Todo model 裡的所有資料
+  Todo.find() // 取出 Todo model 裡的所有資料 => Todo.find(): 至資料庫取出所有資料
     .lean() // 把 Mongoose 的 Model 物件轉換成乾淨的 JavaScript 資料陣列
     .then(todos => res.render('index', { todos })) // 將資料傳給 index 樣板
     .catch(error => console.error(error)) // 錯誤處理
 })
 
-// 設定New頁面路由
+// 設定New頁面路由: 至new頁面
 app.get('/todos/new', (req, res) => {
   return res.render('new')
 })
 
-//Create 功能：資料庫新增資料
+//設定路由: 新增一筆To-do
 app.post('/todos', (req, res) => {
   const name = req.body.name       // 從 req.body 拿出表單裡的 name 資料
-  return Todo.create({ name })     // 存入資料庫
+  return Todo.create({ name })     // 存入資料庫 => Todo.create(): 資料庫新增資料
     .then(() => res.redirect('/')) // 新增完成後導回首頁
+    .catch(error => console.log(error))
+})
+
+//設定路由: 瀏覽特定 To-do 
+app.get('/todos/:id', (req, res) => {
+  const id = req.params.id //從req.params取出動態路由裡的id => 每一筆 todo 的識別碼
+  return Todo.findById(id) //至資料庫用id查詢特定一筆 todo 資料 => Todo.findById()
+    .lean()               //轉換成乾淨的 JavaScript 資料物件
+    .then((todo) => res.render('detail', { todo })) //資料會被存在 todo 變數裡，傳給樣板引擎，請 Handlebars 幫忙組裝 detail 頁面
     .catch(error => console.log(error))
 })
 
