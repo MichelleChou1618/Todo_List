@@ -5,8 +5,11 @@ const port = 3000
 // 載入express-handlebars
 const exphbs = require('express-handlebars');
 
+// 載入 Todo model
+const Todo = require('./models/todo')
+
 // 載入 mongoose
-const mongoose = require('mongoose') 
+const mongoose = require('mongoose')
 // 加入這段 code, 僅在非正式環境時, 使用 dotenv: dotenv 是一個方便我們管理環境變數的工具，他可以讓我們把環境變數直接寫在專案裡，以專案為單位去管理。引入 dotenv，讓 Node.js 能抓到寫在 .env 上的環境變數
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -37,7 +40,13 @@ db.once('open', () => {
 // 設定首頁路由
 app.get('/', (req, res) => {
   //res.send('hello world')
-  res.render('index')
+  //res.render('index')
+
+  //把 Todo model 的資料傳到樣板裡
+  Todo.find() // 取出 Todo model 裡的所有資料
+    .lean() // 把 Mongoose 的 Model 物件轉換成乾淨的 JavaScript 資料陣列
+    .then(todos => res.render('index', { todos })) // 將資料傳給 index 樣板
+    .catch(error => console.error(error)) // 錯誤處理
 })
 
 // 設定 port 3000
