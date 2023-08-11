@@ -55,12 +55,12 @@ app.get('/', (req, res) => {
     .catch(error => console.error(error)) // 錯誤處理
 })
 
-// 設定New頁面路由: 至new頁面
+// 設定首頁 - 點擊'Create' button - 路由: 至New頁面: 表單
 app.get('/todos/new', (req, res) => {
   return res.render('new')
 })
 
-//設定路由: 新增一筆To-do
+//設定New頁面 - 點擊'Create' button -路由: 新增一筆To-do
 app.post('/todos', (req, res) => {
   const name = req.body.name       // 從 req.body 拿出表單裡的 name 資料
   return Todo.create({ name })     // 存入資料庫 => Todo.create(): 資料庫新增資料
@@ -68,13 +68,35 @@ app.post('/todos', (req, res) => {
     .catch(error => console.log(error))
 })
 
-//設定路由: 瀏覽特定 To-do 
+//設定首頁 - 點擊'Detail' button -路由: 至Detail頁面 => 瀏覽特定 To-do 
 app.get('/todos/:id', (req, res) => {
   const id = req.params.id //從req.params取出動態路由裡的id => 每一筆 todo 的識別碼
   return Todo.findById(id) //至資料庫用id查詢特定一筆 todo 資料 => Todo.findById()
     .lean()               //轉換成乾淨的 JavaScript 資料物件
     .then((todo) => res.render('detail', { todo })) //資料會被存在 todo 變數裡，傳給樣板引擎，請 Handlebars 幫忙組裝 detail 頁面
     .catch(error => console.log(error))
+})
+
+//設定首頁, Detail頁面 - 點擊'Edit' button - 路由: 至Edit頁面: 表單with 預設資料 
+app.get('/todos/:id/edit', (req, res) => {
+  const id = req.params.id //從req.params取出動態路由裡的id => 每一筆 todo 的識別碼
+  return Todo.findById(id) //至資料庫用id查詢特定一筆 todo 資料 => Todo.findById()
+    .lean()               //轉換成乾淨的 JavaScript 資料物件
+    .then((todo) => res.render('edit', { todo })) //資料會被存在 todo 變數裡，傳給樣板引擎，請 Handlebars 幫忙組裝 edit 頁面
+    .catch(error => console.log(error))
+})
+
+//設定Edit頁面 - 點擊'Edit' button - 路由: Update一筆To-do
+app.post('/todos/:id/edit', (req, res) => {
+  const id = req.params.id   //從req.params取出動態路由裡的id => 每一筆 todo 的識別碼
+  const name = req.body.name // 從 req.body 拿出表單裡的 name 資料
+  return Todo.findById(id)   //至資料庫用id查詢特定一筆 todo 資料 => Todo.findById()
+    .then(todo => {          // 如果查詢成功, 修改後儲存資料
+      todo.name = name
+      return todo.save()
+    })
+    .then(()=> res.redirect(`/todos/${id}`)) //如果儲存成功, 導回Detail頁面
+    .catch(error => console.log(error))      //任一步驟出現失敗，都會跳進錯誤處理
 })
 
 // 設定 port 3000
