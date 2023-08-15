@@ -89,10 +89,13 @@ app.get('/todos/:id/edit', (req, res) => {
 //設定Edit頁面 - 點擊'Edit' button - 路由: Update一筆To-do
 app.post('/todos/:id/edit', (req, res) => {
   const id = req.params.id   //從req.params取出動態路由裡的id => 每一筆 todo 的識別碼
-  const name = req.body.name // 從 req.body 拿出表單裡的 name 資料
+  //const name = req.body.name // 從 req.body 拿出表單裡的 name 資料
+  console.log(req.body)
+  const { name, isDone } = req.body //解構賦值: 把物件裡的屬性一項項拿出來存成變數時，可以使用的一種縮寫
   return Todo.findById(id)   //至資料庫用id查詢特定一筆 todo 資料 => Todo.findById()
     .then(todo => {          // 如果查詢成功, 修改後儲存資料
       todo.name = name
+      todo.isDone = isDone === 'on'
       return todo.save()
     })
     .then(()=> res.redirect(`/todos/${id}`)) //如果儲存成功, 導回Detail頁面
