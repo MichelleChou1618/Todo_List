@@ -6,13 +6,16 @@ const port = 3000
 const exphbs = require('express-handlebars');
 
 // 載入 Todo model
-const Todo = require('./models/todo')
+//const Todo = require('./models/todo')
 
 // 引用 body-parser
 const bodyParser = require('body-parser')
 
 // 載入 method-override
 const methodOverride = require('method-override') 
+
+// 引用路由器: 引入路由器時，路徑設定為 /routes 就會自動去尋找目錄下叫做 index 的檔案
+const routes = require('./routes')
 
 // 載入 mongoose
 const mongoose = require('mongoose')
@@ -48,7 +51,10 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // 用 app.use 設定每一筆請求都會透過 methodOverride 進行前置處理
 app.use(methodOverride('_method'))
 
+// 將 request 導入路由器
+app.use(routes)
 
+/*
 // 設定首頁路由: 瀏覽所有To-do
 app.get('/', (req, res) => {
   //res.send('hello world')
@@ -61,6 +67,7 @@ app.get('/', (req, res) => {
     .then(todos => res.render('index', { todos })) // 將資料傳給 index 樣板
     .catch(error => console.error(error)) // 錯誤處理
 })
+
 
 // 設定首頁 - 點擊'Create' button - 路由: 至New頁面: 表單
 app.get('/todos/new', (req, res) => {
@@ -117,6 +124,7 @@ app.delete('/todos/:id', (req, res) => {
     .then(() => res.redirect('/')) //成功刪除以後，使用 redirect 重新呼叫首頁，此時會重新發送請求給 GET /，進入到另一條路由。
     .catch(error => console.log(error))
 })
+*/
 
 // 設定 port 3000
 app.listen(3000, () => {
