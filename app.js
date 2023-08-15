@@ -11,6 +11,9 @@ const Todo = require('./models/todo')
 // 引用 body-parser
 const bodyParser = require('body-parser')
 
+// 載入 method-override
+const methodOverride = require('method-override') 
+
 // 載入 mongoose
 const mongoose = require('mongoose')
 // 加入這段 code, 僅在非正式環境時, 使用 dotenv: dotenv 是一個方便我們管理環境變數的工具，他可以讓我們把環境變數直接寫在專案裡，以專案為單位去管理。引入 dotenv，讓 Node.js 能抓到寫在 .env 上的環境變數
@@ -23,15 +26,6 @@ if (process.env.NODE_ENV !== 'production') {
 //第二個參數: 處理 terminal上的 DeprecationWarning 警告
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
-// 用 app.use 規定每一筆請求都需要透過 body-parser 進行前置處理
-app.use(bodyParser.urlencoded({ extended: true }))
-
-
-//建立樣板引擎hbs
-app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }))
-//啟用 樣板引擎hbs
-app.set('view engine', 'hbs')
-
 // 取得資料庫連線狀態
 const db = mongoose.connection
 // 連線異常
@@ -42,6 +36,18 @@ db.on('error', () => {
 db.once('open', () => {
   console.log('mongodb connected!')
 })
+
+//建立樣板引擎hbs
+app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }))
+//啟用 樣板引擎hbs
+app.set('view engine', 'hbs')
+
+// 用 app.use 規定每一筆請求都需要透過 body-parser 進行前置處理
+app.use(bodyParser.urlencoded({ extended: true }))
+
+// 用 app.use 設定每一筆請求都會透過 methodOverride 進行前置處理
+app.use(methodOverride('_method'))
+
 
 // 設定首頁路由: 瀏覽所有To-do
 app.get('/', (req, res) => {
@@ -88,7 +94,7 @@ app.get('/todos/:id/edit', (req, res) => {
 })
 
 //設定Edit頁面 - 點擊'Edit' button - 路由: Update一筆To-do
-app.post('/todos/:id/edit', (req, res) => {
+app.put('/todos/:id', (req, res) => {
   const id = req.params.id   //從req.params取出動態路由裡的id => 每一筆 todo 的識別碼
   //const name = req.body.name // 從 req.body 拿出表單裡的 name 資料
   console.log(req.body)
@@ -104,7 +110,7 @@ app.post('/todos/:id/edit', (req, res) => {
 })
 
 //設定首頁, Detail頁面 - 點擊'Delete' button - 路由: 刪除該筆todo 
-app.post('/todos/:id/delete', (req, res) => {
+app.delete('/todos/:id', (req, res) => {
   const id = req.params.id      //取得網址上的識別碼，用來查詢使用者想刪除的 To-do
   return Todo.findById(id)      //使用 Todo.findById() 查詢資料，資料庫查詢成功以後，會把資料放進 todo
     .then(todo => todo.remove()) //用 todo.remove() 刪除這筆資料
