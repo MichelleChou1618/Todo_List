@@ -14,9 +14,13 @@ const bodyParser = require('body-parser')
 // 載入 method-override
 const methodOverride = require('method-override') 
 
-// 引用路由器: 引入路由器時，路徑設定為 /routes 就會自動去尋找目錄下叫做 index 的檔案
+// refactor: 引用路由器: 引入路由器時，路徑設定為 /routes 就會自動去尋找目錄下叫做 index 的檔案
 const routes = require('./routes')
 
+//refactor: 將mongoose連線設定抽離app.js,再從app.js引用設定檔:對 app.js 而言，Mongoose 連線設定只需要「被執行」，不需要接到任何回傳參數繼續利用，所以這裡不需要再設定變數
+require('./config/mongoose')
+
+/*
 // 載入 mongoose
 const mongoose = require('mongoose')
 // 加入這段 code, 僅在非正式環境時, 使用 dotenv: dotenv 是一個方便我們管理環境變數的工具，他可以讓我們把環境變數直接寫在專案裡，以專案為單位去管理。引入 dotenv，讓 Node.js 能抓到寫在 .env 上的環境變數
@@ -39,6 +43,7 @@ db.on('error', () => {
 db.once('open', () => {
   console.log('mongodb connected!')
 })
+*/
 
 //建立樣板引擎hbs
 app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }))
@@ -51,7 +56,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // 用 app.use 設定每一筆請求都會透過 methodOverride 進行前置處理
 app.use(methodOverride('_method'))
 
-// 將 request 導入路由器
+// refactor: 將 request 導入路由器
 app.use(routes)
 
 /*
