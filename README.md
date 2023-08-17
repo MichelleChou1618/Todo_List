@@ -55,5 +55,6 @@
 - body-parser 1.20.2
 - mongoose 5.9.7
 - dotenv 16.3.1
+- method-override 3.0.0
 
 
