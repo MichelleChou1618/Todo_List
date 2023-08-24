@@ -1,7 +1,10 @@
 // 載入 express 並建構應用程式伺服器
 const express = require('express')
 const app = express()
-const port = 3000
+//const port = 3000
+// 如果在 Heroku 環境則使用 process.env.PORT
+// 否則為本地環境，使用 3000 
+const PORT = process.env.PORT || 3000
 // 載入express-handlebars
 const exphbs = require('express-handlebars');
 
@@ -131,7 +134,7 @@ app.delete('/todos/:id', (req, res) => {
 })
 */
 
-// 設定 port 3000
-app.listen(3000, () => {
-  console.log('App is running on http://localhost:3000')
+// 設定 port
+app.listen(PORT, () => {
+  console.log(`App is running on http://localhost:${PORT}`)
 })
